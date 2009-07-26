@@ -24,7 +24,7 @@ $scraper->configure(
     },
 );
 
-ok my $config = $scraper->_site_config('http://img.2chan.net/b/res/65778369.htm'), 'existent site';
+ok my ($config) = $scraper->_site_config('http://img.2chan.net/b/res/65778369.htm'), 'existent site';
 ok $config->{image};
 ok $config->{image}->{xpath};
 

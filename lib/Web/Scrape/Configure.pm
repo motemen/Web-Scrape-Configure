@@ -12,23 +12,50 @@ sub configure {
 }
 
 sub process {
-    my ($self, $uri) = @_;
+    my ($self, $uri, $result) = @_;
     $uri = URI->new($uri) unless ref $uri;
 
-    my $config = $self->_site_config($uri) or return;
-    my $control = $config->{control};
+    my ($config, $host_config) = $self->_site_config($uri) or return;
+
+    if (my $login = $host_config->{control}->{login}) {
+        $self->login_by_config($login);
+    }
 
     $self->get($uri);
-    
-    my $result;
+
     foreach my $key (keys %$config) {
         next if $key eq 'control';
-        my ($method, $arg) = %{ $config->{$key} };
-        my @values = map $_->string_value, $self->$method($arg);
+        my @values = $self->scrape_by_config($config->{$key});
         my $value = ($key =~ s/\[\]$// ? \@values : $values[0]);
         $result->{$key} = $value;
     }
+
+    if (my $follow = $config->{control}->{follow}) {
+        my $uri = URI->new_abs($self->scrape_by_config($follow), $self->base);
+        return $self->process($uri, $result);
+    }
+
     $result;
+}
+
+sub login_by_config {
+    my ($self, $config) = @_;
+    unless ($self->{_session}->{$config->{uri}}) {
+        $self->get($config->{uri});
+        $self->submit_form(fields => $config->{form});
+        $self->{_session}->{$config->{uri}}++ if $self->success;
+    }
+}
+
+sub scrape_by_config {
+    my ($self, $config) = @_;
+    my ($method, $arg) = %$config;
+    map {
+        my $s = $_->string_value;
+        utf8::downgrade($s, 1);
+        decode_utf8($s);
+    }
+    $self->$method($arg);
 }
 
 sub _host_config {
@@ -48,7 +75,7 @@ sub _site_config {
     $uri = URI->new($uri) unless ref $uri;
     my $config = $self->_host_config($uri) or return;
     foreach (keys %$config) {
-        return $config->{$_} if $uri->path_query =~ qr/$_/;
+        return ($config->{$_}, $config)  if $uri->path_query =~ qr/^$_/;
     }
 }
 
@@ -64,14 +91,13 @@ sub WWW::Mechanize::selector {
 sub WWW::Mechanize::xpath {
     my ($mech, $xpath) = @_;
  
-    my @ct = $mech->response->header('Content-Type');
- 
     my $content = $mech->content;
     unless (Encode::is_utf8($content)) {
+        my @ct = $mech->response->header('Content-Type');
         if ($ct[0] && $ct[0] =~ /charset=([\w\-]+)/) {
-            $content = decode($1, $mech->content);
+            $content = decode($1, $content);
         } else {
-            $content = decode_utf8($mech->content);
+            $content = decode_utf8($content);
         }
     }
  
