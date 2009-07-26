@@ -2,6 +2,7 @@ package Web::Scrape::Configure;
 use strict;
 use warnings;
 use base 'WWW::Mechanize';
+use URI;
 
 our $VERSION = '0.01';
 
@@ -59,6 +60,7 @@ sub WWW::Mechanize::selector {
     my ($mech, $selector) = @_;
     $mech->xpath(HTML::Selector::XPath->new($selector)->to_xpath);
 }
+
 sub WWW::Mechanize::xpath {
     my ($mech, $xpath) = @_;
  
