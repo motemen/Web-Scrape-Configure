@@ -48,7 +48,7 @@ sub _site_config {
     $uri = URI->new($uri) unless ref $uri;
     my $config = $self->_host_config($uri) or return;
     foreach (keys %$config) {
-        return $config->{$_} if $uri->path =~ qr/$_/;
+        return $config->{$_} if $uri->path_query =~ qr/$_/;
     }
 }
 
