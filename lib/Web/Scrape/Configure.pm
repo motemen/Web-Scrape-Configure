@@ -8,7 +8,7 @@ our $VERSION = '0.01';
 
 sub configure {
     my $self = shift;
-    $self->{config} = { @_ };
+    $self->{config} = ref $_[0] eq 'HASH' ? $_[0] : { @_ };
 }
 
 sub process {
@@ -17,20 +17,20 @@ sub process {
 
     my ($config, $host_config) = $self->_site_config($uri) or return;
 
-    if (my $login = $host_config->{control}->{login}) {
+    if (my $login = $host_config->{'::control'}->{login}) {
         $self->login_by_config($login);
     }
 
     $self->get($uri);
 
     foreach my $key (keys %$config) {
-        next if $key eq 'control';
+        next if $key =~ /^\W/;
         my @values = $self->scrape_by_config($config->{$key});
         my $value = ($key =~ s/\[\]$// ? \@values : $values[0]);
         $result->{$key} = $value;
     }
 
-    if (my $follow = $config->{control}->{follow}) {
+    if (my $follow = $config->{'::control'}->{follow}) {
         my $uri = URI->new_abs($self->scrape_by_config($follow), $self->base);
         return $self->process($uri, $result);
     }
