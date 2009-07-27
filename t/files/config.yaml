@@ -3,12 +3,14 @@
   /b/res/\d+\.htm$:
     image:
       xpath: //form/a/img/../@href
+
 f.hatena.ne.jp:
   /\w+/\d+:
     image:
       xpath: id("foto-body")/img/@src
     title:
       selector: div.fototitle
+
 pixiv.net:
   /member_illust\.php\?mode=big&illust_id=\d+:
     image:
@@ -25,6 +27,7 @@ pixiv.net:
         pass: ~
         pixiv_id: ~
       uri: http://www.pixiv.net/
+
 twitpic.com:
   /\w+$:
     ::control:
@@ -35,3 +38,10 @@ twitpic.com:
   /\w+/full$:
     image:
       xpath: id("pic")/img/@src
+
+danbooru.donmai.us:
+  /post/show/\d+/.+:
+    image:
+      xpath: id("image")/@src
+    'tags[]':
+      xpath: id("tag-sidebar")/li/a[2]/text()

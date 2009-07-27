@@ -7,7 +7,7 @@ use YAML;
 use UNIVERSAL::require;
 
 if ($ENV{TEST_HTTP}) {
-    plan tests => 10;
+    plan tests => 14;
 } else {
     plan skip_all => 'TEST_HTTP not set. skip';
 }
@@ -46,5 +46,14 @@ SKIP: {
     isa_ok $result, 'HASH';
     like   $result->{image}, qr<^http://s3\.amazonaws\.com/twitpic/photos/full/8607562\.jpg\?AWSAccessKeyId=0ZRYP5X5F6FSMBCCSE82&Expires=\d+&Signature=.+$>;
     is     $result->{title}, ' にあかわ！ '; # TODO trim
+    note explain $result;
+}
+
+{
+    my $result = $scraper->process('http://danbooru.donmai.us/post/show/488994/aqua_eyes-aqua_hair-bound_hands-breasts-cleavage-e');
+    isa_ok $result, 'HASH';
+    is     $result->{image}, 'http://danbooru.donmai.us/data/a7d475cbc08a7b35709958d626b62a98.jpg';
+    isa_ok $result->{tags},  'ARRAY';
+    ok     grep /^hatsune miku$/, @{$result->{tags}};
     note explain $result;
 }
