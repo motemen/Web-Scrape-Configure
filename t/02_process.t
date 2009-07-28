@@ -25,9 +25,16 @@ $scraper->configure(YAML::LoadFile('t/files/config.yaml'));
 
 SKIP: {
     skip 'Could not load Config::Pit', 1 unless Config::Pit->use;
-    my $pixiv_config = pit_get('pixiv.net') || pit_get('www.pixiv.net');
-    $scraper->{config}->{'pixiv.net'}->{'::login'}->{form}->{pixiv_id} = $pixiv_config->{pixiv_id};
-    $scraper->{config}->{'pixiv.net'}->{'::login'}->{form}->{pass}     = $pixiv_config->{pass};
+
+    $scraper->add_callback(
+        before_login => sub {
+            my ($scraper, $config) = @_;
+            my $host = URI->new($config->{uri})->host;
+            my $pit_config = pit_get($host);
+            $config->{form}->{$_} ||= $pit_config->{$_} foreach keys %{$config->{form}};
+        }
+    );
+
     my $result = $scraper->process('http://www.pixiv.net/member_illust.php?mode=medium&illust_id=2236079');
     isa_ok $result, 'HASH';
     isa_ok $result->{tags}, 'ARRAY';

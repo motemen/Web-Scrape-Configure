@@ -40,6 +40,9 @@ sub process {
 
 sub login_by_config {
     my ($self, $config) = @_;
+
+    $self->invoke_callback(before_login => $config);
+
     unless ($self->{_session}->{$config->{uri}}) {
         $self->get($config->{uri});
         $self->submit_form(fields => $config->{form});
@@ -56,6 +59,18 @@ sub scrape_by_config {
         decode_utf8($s);
     }
     $self->$method($arg);
+}
+
+sub add_callback {
+    my ($self, $name, $code) = @_;
+    push @{$self->{callbacks}->{$name}}, $code;
+}
+
+sub invoke_callback {
+    my ($self, $name, @args) = @_;
+    foreach (@{$self->{callbacks}->{$name}}) {
+        $_->($self, @args);
+    }
 }
 
 sub _host_config {
