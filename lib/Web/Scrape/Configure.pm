@@ -53,12 +53,12 @@ sub login_by_config {
 sub scrape_by_config {
     my ($self, $config) = @_;
     my ($method, $arg) = %$config;
+    $self->die("method $method not allowed") unless $method =~ /^(?:xpath|selector)$/;
     map {
         my $s = $_->string_value;
         utf8::downgrade($s, 1);
         decode_utf8($s);
-    }
-    $self->$method($arg);
+    } $self->$method($arg);
 }
 
 sub add_callback {
