@@ -20,6 +20,10 @@ pixiv.net:
       xpath: id("content2")//a/img/../@href
     'tags[]':
       xpath: id("tags")//a/text()
+    title:
+      selector: div.f18b
+    author:
+      xpath: id("profile")/div/span/text()
   ::login:
     form:
       pass: ~
@@ -37,8 +41,17 @@ twitpic.com:
       xpath: id("pic")/img/@src
 
 danbooru.donmai.us:
-  /post/show/\d+/.+:
+  /post/show/\d+:
     image:
       xpath: id("image")/@src
     'tags[]':
       xpath: id("tag-sidebar")/li/a[2]/text()
+
+deviantart.com:
+  '/art/[\w-]+':
+    title:
+      xpath: //h1/text()
+    author:
+      xpath: //h1/small/a[@class="u"]/text()
+    image:
+      xpath: id('zoomed-in-image')/@src

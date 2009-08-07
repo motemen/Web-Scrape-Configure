@@ -31,7 +31,8 @@ sub process {
     }
 
     if (my $follow = $config->{'::follow'}) {
-        my $uri = URI->new_abs($self->scrape_by_config($follow), $self->base);
+        my ($link) = $self->scrape_by_config($follow);
+        my $uri = URI->new_abs($link, $self->base);
         return $self->process($uri, $result);
     }
 

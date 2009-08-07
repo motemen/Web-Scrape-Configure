@@ -7,7 +7,7 @@ use YAML;
 use UNIVERSAL::require;
 
 if ($ENV{TEST_HTTP}) {
-    plan tests => 14;
+    plan tests => 17;
 } else {
     plan skip_all => 'TEST_HTTP not set. skip';
 }
@@ -35,9 +35,12 @@ SKIP: {
         }
     );
 
-    my $result = $scraper->process('http://www.pixiv.net/member_illust.php?mode=medium&illust_id=2236079');
+    my $result = $scraper->process('http://www.pixiv.net/member_illust.php?mode=medium&illust_id=4390610');
     isa_ok $result, 'HASH';
     isa_ok $result->{tags}, 'ARRAY';
+    is     $result->{author}, 'pixiv事務局';
+    is     $result->{title}, '【企画】剣と魔法と学園モノ。2イラストコンテスト';
+    ok     grep /^ととモノ2$/, @{$result->{tags}};
     note explain $result;
 }
 
