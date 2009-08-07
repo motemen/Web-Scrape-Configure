@@ -56,6 +56,8 @@ sub scrape_by_config {
     $self->die("method $method not allowed") unless $method =~ /^(?:xpath|selector)$/;
     map {
         my $s = $_->string_value;
+        $s =~ s/^\s+//;
+        $s =~ s/\s+$//;
         utf8::downgrade($s, 1);
         decode_utf8($s);
     } $self->$method($arg);

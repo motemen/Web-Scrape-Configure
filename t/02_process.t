@@ -52,7 +52,7 @@ SKIP: {
     my $result = $scraper->process('http://twitpic.com/54hmy');
     isa_ok $result, 'HASH';
     like   $result->{image}, qr<^http://s3\.amazonaws\.com/twitpic/photos/full/8607562\.jpg\?AWSAccessKeyId=0ZRYP5X5F6FSMBCCSE82&Expires=\d+&Signature=.+$>;
-    is     $result->{title}, ' にあかわ！ '; # TODO trim
+    is     $result->{title}, 'にあかわ！';
     note explain $result;
 }
 
